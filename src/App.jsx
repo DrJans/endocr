@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import jsPDF from 'jspdf'
 import styles from './App.module.css'
 
 const MOTIFS = ['Douleur au froid','Douleur au chaud','Douleur à la mastication','Douleur la nuit','Douleur irradiante','Douleur spontanée','Douleur localisée','Gonflement associé','Fièvre associée','Morceau de dent tombé','Traumatisme dentaire','Couronne tombée','Aucune douleur','Malaises associés']
@@ -320,14 +321,27 @@ function Results({ crConfrere, crPatient, onReset }) {
   }
   const downloadPDF = () => {
     const text = tab === 'confrere' ? crConfrere : crPatient
-    const filename = tab === 'confrere' ? 'CR_Confrere.txt' : 'Resume_Patient.txt'
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    a.click()
-    URL.revokeObjectURL(url)
+    const filename = tab === 'confrere' ? 'CR_Confrere.pdf' : 'Resume_Patient.pdf'
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    const margin = 15
+    const maxWidth = 180
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(11)
+    const lines = doc.splitTextToSize(text, maxWidth)
+    let y = 20
+    lines.forEach(line => {
+      if (y > 275) { doc.addPage(); y = 20 }
+      if (line === line.toUpperCase() && line.trim().length > 0) {
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(11)
+      } else {
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(10)
+      }
+      doc.text(line, margin, y)
+      y += 6
+    })
+    doc.save(filename)
   }
   return (
     <div>
