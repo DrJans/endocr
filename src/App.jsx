@@ -318,6 +318,17 @@ function Results({ crConfrere, crPatient, onReset }) {
     const text = tab === 'confrere' ? crConfrere : crPatient
     navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
   }
+  const downloadPDF = () => {
+    const text = tab === 'confrere' ? crConfrere : crPatient
+    const filename = tab === 'confrere' ? 'CR_Confrere.txt' : 'Resume_Patient.txt'
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  }
   return (
     <div>
       <div className={styles.tabRow}>
@@ -330,6 +341,7 @@ function Results({ crConfrere, crPatient, onReset }) {
       <div className={styles.navRow}>
         <button className={`${styles.btn} ${styles.btnGhost}`} onClick={onReset}>← Nouvelle consultation</button>
         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={copy}>{copied ? '✓ Copié !' : 'Copier le texte'}</button>
+        <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={downloadPDF}>⬇ Télécharger</button>
       </div>
     </div>
   )
